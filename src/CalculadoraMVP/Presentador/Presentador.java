@@ -7,7 +7,7 @@ public class Presentador {
     private Ecuacion mEcuacion;
     private Operacion oper;
     private Ecuacion temp = new Ecuacion();
-    private boolean ayuda=true;
+    private boolean isDatosCompletos=false;
 
     public Presentador(IVCalculadora vista, Ecuacion mEcuacion) {
         this.vista = vista;
@@ -23,16 +23,16 @@ public class Presentador {
         vista.setSalida(String.valueOf(temp.getResultado()),null);
     }
     public void calcular(){
-        establecerOperador();
-        if (ayuda) {
+        establecerOperacion();
+        if (!isDatosCompletos) {
             mEcuacion.setA(vista.getEntrada());
-            ayuda=false;
+            isDatosCompletos=true;
         }else{
             mEcuacion.setB(vista.getEntrada());
             mEcuacion = oper.calcular(mEcuacion);
             
             vista.setSalida(String.valueOf(mEcuacion.getResultado()), null);
-            ayuda=true;
+            isDatosCompletos=false;
         }
         
     }
@@ -53,16 +53,17 @@ public class Presentador {
     
     public void dividir(){
         mEcuacion.setOperador(TiposOperador.DIVISION);
-        establecerOperador();
+        establecerOperacion();
         
-        if (ayuda) {
+        // falta refactor, duplicado codigo para mensaje de error
+        if (!isDatosCompletos) {
             mEcuacion.setA(vista.getEntrada());
-            ayuda=false;
+            isDatosCompletos=true;
         }else{
             if (vista.getEntrada()!=0) {
                 mEcuacion.setB(vista.getEntrada());
                 mEcuacion = oper.calcular(mEcuacion);
-                ayuda=true;
+                isDatosCompletos=false;
                 vista.setSalida(String.valueOf(mEcuacion.getResultado()), null);
             }else{
                 System.out.println("DIVISOR NO PUEDE SER 0");
@@ -72,11 +73,11 @@ public class Presentador {
     }
     public void refresh(){
         mEcuacion = new Ecuacion();
-        ayuda=true;
+        isDatosCompletos=false;
         vista.setSalida("0", null);
     }
     
-    private void establecerOperador(){
+    private void establecerOperacion(){
         switch (mEcuacion.getOperador()) {
             case SUMA:
                 oper= new OperacionSumar();
